@@ -1,7 +1,21 @@
 {{ if .Get "default" }}
   {{ template "_internal/shortcodes/figure.html" . }}
 {{ else }}
-  {{ $url := urls.Parse (.Get "src") }}
+
+  {{ $imghost := "" }}
+  {{ $section := $.Page.CurrentSection }}
+  {{ $altsec1 := $.Site.Params.mediaAltSec1 }}
+    
+  {{ if in $section $altsec1 }}
+    {{ $imghost = $.Site.Params.mediaHostAlt1 }}
+  {{ else }}
+    {{ $imghost = $.Site.Params.mediaHost }}
+  {{ end }}
+
+  {{ $imgslug:= urls.Parse (.Get "src") }}
+  {{ $ihost := $imghost }}
+  {{ $ipath := printf "%s%s" $ihost $imgslug }}
+
 
   <!-- {{ $altText := .Get "alt" }} -->
   {{ $altText := .Get "cap" }}
@@ -11,7 +25,7 @@
 
   {{ $class := default "mx-auto my-0 rounded-md" (.Get "class") }}
 
-  {{ $file := $url.Path }}
+  {{ $file := $imgslug.Path }}
   {{ $img := .Page.Resources.GetMatch $file }}
   {{- if and (not $img) .Page.File }}
     {{ $path := path.Join .Page.File.Dir $file }}
@@ -20,19 +34,16 @@
 
   <!-- prettier-ignore -->
   <figure{{ with $class }} class="{{ . }} figmarg"{{ end }}>
-    <!-- HARD-CODED MEDIA HOST -->
-    {{ with $url }}<a href="https://cdn99.gitlab.io/media/{{ . }}">{{ end }}
-
+    <a href="{{ $ipath }}">
     {{- with $img -}}
       {{ $lazy := $.Page.Site.Params.enableImageLazyLoading | default true }}
       {{ $webp := $.Page.Site.Params.enableImageWebp | default true }}
       {{ partial "picture.html" (dict "img" . "alt" $altText "class" $class "lazy" $lazy "webp" $webp) }}
     {{- else -}}
-      <!-- HARD-CODED MEDIA HOST -->
-      <img src="https://cdn99.gitlab.io/media/{{ $url.String }}" alt="{{ $altText }}" class="{{ $class }}"/>
+      <img src="{{ $ipath }}" alt="{{ $altText }}" class="{{ $class }}"/>
     {{- end -}}
 
-    {{ with $url }}</a>{{ end }}
+    </a>
     {{ with $caption }}<figcaption class="text-center">{{ . | markdownify }}</figcaption>{{ end }}
   </figure>
 {{ end }}
