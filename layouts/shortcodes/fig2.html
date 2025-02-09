@@ -5,9 +5,12 @@
   {{ $imghost := "" }}
   {{ $section := $.Page.CurrentSection }}
   {{ $altsec1 := $.Site.Params.mediaAltSec1 }}
+  {{ $altsec2 := $.Site.Params.mediaAltSec2 }}
     
   {{ if in $section $altsec1 }}
     {{ $imghost = $.Site.Params.mediaHostAlt1 }}
+  {{ else if in $section $altsec2 }}
+    {{ $imghost = $.Site.Params.mediaHostAlt2 }}
   {{ else }}
     {{ $imghost = $.Site.Params.mediaHost }}
   {{ end }}
